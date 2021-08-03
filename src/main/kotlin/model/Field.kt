@@ -8,7 +8,7 @@ enum class FieldEvent {
     RESTART
 }
 
-data class Field(val line: Int, val column: Int) {
+data class Field(val row: Int, val column: Int) {
     private val neighbors = ArrayList<Field>()
     private val callbacks = ArrayList<(Field, FieldEvent) -> Unit>()
 
