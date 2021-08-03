@@ -20,6 +20,7 @@ class Board(val qtRows: Int, val qtCols: Int, private val qtMines: Int) {
             fields.add(ArrayList())
             for (column in 0 until qtCols) {
                 val newField = Field(row, column)
+                newField.onEvent(this::verifyVictory)
                 fields[row].add(newField)
             }
         }
@@ -61,10 +62,31 @@ class Board(val qtRows: Int, val qtCols: Int, private val qtMines: Int) {
         }
     }
 
+    private fun hasWon(): Boolean {
+        var hasWon = true
+        forEachMine { if (!it.isWon) hasWon = false }
+        return hasWon
+    }
+
+    private fun verifyVictory(field: Field, event: FieldEvent) {
+        if (event == FieldEvent.EXPLODED) {
+            callbacks.forEach { it(BoardEvent.LOST) }
+        } else if (hasWon()) {
+            callbacks.forEach { it(BoardEvent.WIN) }
+        }
+    }
 
 
     fun forEachMine(callback: (Field) -> Unit) {
         fields.forEach { row -> row.forEach(callback) }
     }
 
+    fun onEvent(callback: (BoardEvent) -> Unit) {
+        callbacks.add(callback)
+    }
+
+    fun restart() {
+        forEachMine { it.restart() }
+        placeMines()
+    }
 }
